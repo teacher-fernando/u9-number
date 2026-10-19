@@ -37,7 +37,6 @@
             flex-direction: column;
         }
 
-        /* Juicy Chunky Borders & Shadows (Dumb Ways / Endless style) */
         .chunky-card {
             background: #FFFFFF;
             border: 5px solid var(--dark-outline);
@@ -65,13 +64,37 @@
             box-shadow: 0 2px 0 var(--dark-outline);
         }
 
-        .mode-active {
-            background-color: var(--bean-yellow) !important;
-            transform: translateY(3px);
-            box-shadow: 0 4px 0 var(--dark-outline) !important;
+        .species-word-pill {
+            display: inline-block;
+            padding: 2px 14px;
+            border-radius: 16px;
+            border: 3px solid var(--dark-outline);
+            box-shadow: 0 3px 0 var(--dark-outline);
+            margin: 0 4px;
+            transform: translateY(-2px);
         }
 
-        /* Floating / Squishy Animations */
+        .answer-option-btn {
+            background-color: #FFFFFF;
+            color: var(--dark-outline);
+            border: 4px solid var(--dark-outline);
+            box-shadow: 0 7px 0 var(--dark-outline);
+            border-radius: 22px;
+            transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.12s ease, background-color 0.15s;
+            cursor: pointer;
+        }
+
+        .answer-option-btn:hover {
+            background-color: #FFFDF7;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 0 var(--dark-outline);
+        }
+
+        .answer-option-btn:active {
+            transform: translateY(5px) scale(0.97);
+            box-shadow: 0 2px 0 var(--dark-outline);
+        }
+
         @keyframes squish {
             0%, 100% { transform: scale(1, 1); }
             30% { transform: scale(1.18, 0.85); }
@@ -92,20 +115,20 @@
             animation: shake 0.45s ease-in-out;
         }
 
-        @keyframes floatSlow {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
         }
 
-        .float-badge {
-            animation: floatSlow 3s ease-in-out infinite;
+        .animate-bean-bounce {
+            animation: bounce-slow 1.6s ease-in-out infinite;
         }
 
         #canvas-wrapper {
             position: relative;
             flex: 1 1 auto;
             width: 100%;
-            min-height: 240px;
+            min-height: 220px;
             overflow: hidden;
             cursor: grab;
         }
@@ -120,126 +143,203 @@
             height: 100%;
         }
 
-        /* Decorative background polka dots */
         .polka-bg {
-            background-image: radial-gradient(#E8DAB2 20%, transparent 20%),
-                              radial-gradient(#E8DAB2 20%, transparent 20%);
-            background-position: 0 0, 25px 25px;
-            background-size: 50px 50px;
+            background-color: #FFF6E5;
+            background-image: radial-gradient(#E8DAB2 22%, transparent 22%),
+                              radial-gradient(#E8DAB2 22%, transparent 22%);
+            background-position: 0 0, 30px 30px;
+            background-size: 60px 60px;
+        }
+
+        /* Theater Curtains for Memory Mode */
+        .curtain-panel {
+            background: repeating-linear-gradient(
+                90deg,
+                #D90429,
+                #D90429 28px,
+                #EF233C 28px,
+                #EF233C 56px
+            );
+            border-bottom: 8px solid #FFB703;
+            box-shadow: inset 0 -12px 0 rgba(0,0,0,0.2);
+            transition: transform 0.65s cubic-bezier(0.68, -0.15, 0.26, 1.15);
+        }
+        .curtain-left {
+            border-right: 5px solid var(--dark-outline);
+            transform: translateX(-102%);
+        }
+        .curtain-right {
+            border-left: 5px solid var(--dark-outline);
+            transform: translateX(102%);
+        }
+        .curtains-closed .curtain-left {
+            transform: translateX(0%);
+        }
+        .curtains-closed .curtain-right {
+            transform: translateX(0%);
         }
     </style>
 </head>
 <body class="polka-bg select-none">
 
-    <!-- TOP HEADER -->
-    <header class="w-full px-3 pt-3 pb-1 z-20 flex flex-wrap items-center justify-between gap-2 max-w-6xl mx-auto">
-        <!-- Brand / Logo -->
-        <div class="flex items-center gap-2 bg-white px-4 py-1.5 chunky-card !border-4 !shadow-[0_5px_0_#2B2D42]">
-            <span class="text-2xl md:text-3xl">👾</span>
-            <div>
-                <h1 class="text-lg md:text-xl font-bold tracking-tight leading-none text-[#FF5964]">NUMBER CRUNCH</h1>
-                <p class="text-[11px] font-semibold text-slate-500 leading-none">ENGLISH 1 TO 100</p>
+    <div id="main-menu-modal" class="fixed inset-0 z-50 polka-bg flex flex-col items-center justify-between p-4 sm:p-6 overflow-y-auto">
+        <div class="w-full max-w-6xl mx-auto flex flex-col items-center my-auto py-3">
+            <div class="chunky-card bg-white px-8 py-4 mb-5 text-center flex items-center gap-4">
+                <span class="text-5xl sm:text-6xl animate-bean-bounce">👾</span>
+                <div class="text-left">
+                    <h1 class="text-3xl sm:text-5xl font-bold text-[#FF5964] tracking-tight leading-none">MONSTER NUMBERS</h1>
+                    <p class="text-xs sm:text-sm font-bold text-slate-500 mt-1">CHOOSE A GAME MODE TO PRACTICE UP TO 100!</p>
+                </div>
+            </div>
+
+            <!-- 10 Game Modes Grid -->
+            <div id="modes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5 w-full">
+                <!-- Populated by JS -->
             </div>
         </div>
+    </div>
 
-        <!-- Mode Switcher -->
-        <div class="flex items-center gap-1.5 sm:gap-2 bg-white/80 p-1.5 rounded-3xl border-4 border-[#2B2D42]">
-            <button id="mode-analyze" onclick="setGameMode('analyze')" class="chunky-btn mode-active bg-white px-3 py-1.5 text-xs sm:text-sm font-bold flex items-center gap-1">
-                <span>🔍</span> <span>Analyze Picture</span>
-            </button>
-            <button id="mode-math" onclick="setGameMode('math')" class="chunky-btn bg-white px-3 py-1.5 text-xs sm:text-sm font-bold flex items-center gap-1">
-                <span>🧮</span> <span>Math Lab</span>
-            </button>
-            <button id="mode-mix" onclick="setGameMode('mix')" class="chunky-btn bg-white px-3 py-1.5 text-xs sm:text-sm font-bold flex items-center gap-1">
-                <span>🎲</span> <span>Party Mix</span>
-            </button>
+    <div id="setup-modal" class="fixed inset-0 z-50 bg-[#2B2D42]/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="chunky-card bg-white p-6 sm:p-8 max-w-lg w-full flex flex-col items-center text-center animate-squish">
+            <div id="setup-mode-icon" class="w-16 h-16 rounded-2xl border-4 border-[#2B2D42] flex items-center justify-center text-3xl mb-3 bg-[#FFE74C]">
+                👾
+            </div>
+            <h2 id="setup-mode-title" class="text-2xl sm:text-3xl font-bold text-[#2B2D42] mb-1">Game Mode</h2>
+            <p id="setup-mode-desc" class="text-sm font-bold text-slate-500 mb-6">Customize your session settings</p>
+
+            <!-- Time Selection -->
+            <div class="w-full mb-5 text-left">
+                <label class="block text-xs font-bold text-[#2B2D42] uppercase tracking-wide mb-2">⏱️ Session Time / Watch Time:</label>
+                <div class="grid grid-cols-3 gap-2" id="time-options">
+                    <button onclick="selectSetupTime(3)" id="time-btn-3" class="chunky-btn py-2 text-sm font-bold bg-white">3 Seconds</button>
+                    <button onclick="selectSetupTime(5)" id="time-btn-5" class="chunky-btn py-2 text-sm font-bold bg-[#FFE74C]">5 Seconds</button>
+                    <button onclick="selectSetupTime(8)" id="time-btn-8" class="chunky-btn py-2 text-sm font-bold bg-white">8 Seconds</button>
+                </div>
+            </div>
+
+            <!-- Difficulty Selection -->
+            <div class="w-full mb-6 text-left">
+                <label class="block text-xs font-bold text-[#2B2D42] uppercase tracking-wide mb-2">🎯 Difficulty & Number Range:</label>
+                <div class="grid grid-cols-3 gap-2" id="diff-options">
+                    <button onclick="selectSetupDiff(1)" id="diff-btn-1" class="chunky-btn py-2 text-sm font-bold bg-white">Lv. 1 (1-20)</button>
+                    <button onclick="selectSetupDiff(2)" id="diff-btn-2" class="chunky-btn py-2 text-sm font-bold bg-[#6BF178]">Lv. 2 (1-50)</button>
+                    <button onclick="selectSetupDiff(3)" id="diff-btn-3" class="chunky-btn py-2 text-sm font-bold bg-white">Lv. 3 (1-100)</button>
+                </div>
+            </div>
+
+            <div class="flex gap-3 w-full">
+                <button onclick="closeSetupModal()" class="chunky-btn flex-1 bg-[#FFD6D9] py-3 font-bold text-sm">BACK</button>
+                <button onclick="startConfiguredGame()" class="chunky-btn flex-1 bg-[#6BF178] py-3 font-bold text-sm text-[#2B2D42]">START GAME! 🚀</button>
+            </div>
         </div>
+    </div>
 
-        <!-- Stats & Audio Controls -->
+    <header class="w-full px-4 pt-2.5 pb-1 z-20 flex items-center justify-between gap-2 max-w-6xl mx-auto">
+        <button onclick="openMainMenu()" class="chunky-btn bg-white px-3.5 py-1.5 text-sm sm:text-base font-bold flex items-center gap-2">
+            <span>🏠</span> <span>MODES</span>
+            <span id="active-mode-badge" class="hidden sm:inline-block px-2.5 py-0.5 text-xs rounded-full bg-[#FFE74C] border-2 border-[#2B2D42]">Count</span>
+        </button>
+
         <div class="flex items-center gap-2">
-            <div class="chunky-card !border-4 !shadow-[0_5px_0_#2B2D42] px-3 py-1.5 flex items-center gap-3 bg-[#FFE74C]">
-                <div class="flex items-center gap-1 font-bold text-sm sm:text-base" title="Score">
+            <div id="timer-badge" class="hidden chunky-card !border-4 !shadow-[0_4px_0_#2B2D42] px-3 py-1 items-center gap-1.5 bg-[#FF5964] text-white font-bold text-sm sm:text-base">
+                <span>⏱️</span> <span id="timer-val">60s</span>
+            </div>
+
+            <div class="chunky-card !border-4 !shadow-[0_4px_0_#2B2D42] px-3 py-1 flex items-center gap-2.5 bg-[#FFE74C]">
+                <div class="flex items-center gap-1 font-bold text-sm sm:text-base">
                     <span>⭐</span> <span id="score-val">0</span>
                 </div>
-                <div class="w-0.5 h-5 bg-[#2B2D42]/30"></div>
-                <div class="flex items-center gap-1 font-bold text-sm sm:text-base text-[#FF5964]" title="Streak">
+                <div class="w-0.5 h-4 bg-[#2B2D42]/30"></div>
+                <div class="flex items-center gap-1 font-bold text-sm sm:text-base text-[#FF5964]">
                     <span>🔥</span> <span id="streak-val">0</span>
                 </div>
             </div>
 
-            <button onclick="speakCurrentQuestion()" title="Listen in English" class="chunky-btn bg-[#35A7FF] text-white p-2.5 text-base sm:text-lg font-bold">
+            <button onclick="speakCurrentQuestion()" title="Listen" class="chunky-btn bg-[#35A7FF] text-white px-3 py-1.5 text-base font-bold">
                 🔊
             </button>
         </div>
     </header>
 
-    <!-- QUESTION BANNER -->
-    <div class="w-full px-3 z-20 max-w-4xl mx-auto mt-1">
-        <div id="question-card" class="chunky-card px-4 py-2.5 sm:py-3 text-center relative flex flex-col items-center justify-center bg-white">
-            <div class="flex items-center justify-center gap-2 flex-wrap">
-                <span id="question-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-[#6BF178] border-2 border-[#2B2D42]">
-                    COUNT & ANALYZE
-                </span>
-                <span id="hint-pill" class="text-xs font-semibold text-slate-500">
-                    💡 Tip: Drag to rotate 3D • Tap monsters to squish & count!
-                </span>
-            </div>
-            <h2 id="question-text" class="text-xl sm:text-2xl md:text-3xl font-bold mt-1 text-[#2B2D42] tracking-wide">
-                How many Pink Beans are there?
+    <div class="w-full px-4 z-20 max-w-4xl mx-auto mt-1">
+        <div id="question-card" class="chunky-card px-4 py-2.5 text-center bg-white flex items-center justify-center min-h-[64px]">
+            <h2 id="question-text" class="text-xl sm:text-2xl md:text-3xl font-bold text-[#2B2D42] tracking-wide leading-snug">
+                How many Pink Beans?
             </h2>
-            <p id="question-subtext" class="text-xs sm:text-sm font-bold text-[#9B5DE5] min-h-[1.25rem]">
-                Tap any monster to hear how many you counted!
-            </p>
         </div>
     </div>
 
-    <!-- 3D STAGE / VIEWPORT -->
     <div id="canvas-wrapper">
-        <!-- Floating Counter Pill when user clicks 3D objects -->
-        <div id="interactive-counter" class="hidden absolute top-3 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-            <div class="chunky-card !border-4 bg-[#FFE74C] px-4 py-1.5 flex items-center gap-2 animate-squish">
-                <span class="text-lg">👆</span>
-                <span id="tapped-count-text" class="font-bold text-base sm:text-lg text-[#2B2D42]">10 - Ten!</span>
+        <div id="curtain-container" class="pointer-events-none absolute inset-0 z-20 flex overflow-hidden">
+            <div class="curtain-panel curtain-left w-1/2 h-full flex items-center justify-end pr-4">
+                <span class="text-5xl sm:text-7xl select-none">🎭</span>
+            </div>
+            <div class="curtain-panel curtain-right w-1/2 h-full flex items-center justify-start pl-4">
+                <span class="text-5xl sm:text-7xl select-none">❓</span>
+            </div>
+            <div id="curtain-badge" class="opacity-0 transition-opacity duration-300 absolute inset-0 flex items-center justify-center">
+                <div class="chunky-card bg-[#FFE74C] px-6 py-4 text-center">
+                    <p class="text-2xl sm:text-3xl font-bold text-[#2B2D42]">DO YOU REMEMBER?</p>
+                </div>
             </div>
         </div>
 
-        <!-- Camera Reset & 10-Pack Legend Overlay -->
-        <div class="absolute bottom-3 left-3 z-10 flex flex-wrap gap-2 pointer-events-auto">
-            <button onclick="resetCameraView()" class="chunky-btn bg-white/90 px-3 py-1 text-xs font-bold flex items-center gap-1">
-                <span>🎥</span> <span>Center View</span>
+        <div id="interactive-counter" class="hidden absolute top-3 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+            <div class="chunky-card !border-4 bg-[#FFE74C] px-4 py-1 flex items-center gap-2 animate-squish">
+                <span id="tapped-count-text" class="font-bold text-base sm:text-xl text-[#2B2D42]">10 - Ten!</span>
+            </div>
+        </div>
+
+        <div class="absolute bottom-3 left-3 z-10 flex gap-1.5 pointer-events-auto">
+            <button onclick="resetCameraView()" title="Center Camera" class="chunky-btn bg-white px-3 py-1.5 text-sm font-bold">
+                🎥
             </button>
-            <button onclick="boingAllMonsters()" class="chunky-btn bg-[#FF5964] text-white px-3 py-1 text-xs font-bold flex items-center gap-1">
-                <span>🎉</span> <span>Boing All!</span>
+            <button onclick="toggleCloseUpCamera()" id="zoom-toggle-btn" title="Zoom In/Out" class="chunky-btn bg-[#FFE74C] px-3 py-1.5 text-sm font-bold">
+                🔍
+            </button>
+            <button onclick="boingAllMonsters()" title="Jump!" class="chunky-btn bg-[#FF5964] text-white px-3 py-1.5 text-sm font-bold">
+                🎉
             </button>
         </div>
 
-        <div id="pack-legend" class="absolute bottom-3 right-3 z-10 pointer-events-none hidden sm:flex items-center gap-2 bg-white/95 border-3 border-[#2B2D42] px-3 py-1.5 rounded-2xl shadow-md">
-            <span class="text-xs font-bold text-[#2B2D42]">📦 Big Tray = <span class="text-[#FF5964]">10 Monsters</span> (Ten)</span>
+        <div id="closeup-controls" class="hidden absolute top-3 right-3 z-10 flex gap-1.5 pointer-events-auto">
+            <button onclick="spawnShowcaseSquad(1)" class="chunky-btn bg-white px-3 py-1.5 text-xs font-bold">🥰 1 Bean</button>
+            <button onclick="spawnShowcaseSquad(5)" class="chunky-btn bg-white px-3 py-1.5 text-xs font-bold">🥳 5 Beans</button>
+            <button onclick="toggleWalkInPlace()" class="chunky-btn bg-[#6BF178] px-3 py-1.5 text-xs font-bold">🐾 Walk</button>
+        </div>
+
+        <div id="pack-legend" class="absolute bottom-3 right-3 z-10 pointer-events-none hidden items-center gap-2 bg-white border-4 border-[#2B2D42] px-3 py-1 rounded-2xl shadow-[0_4px_0_#2B2D42]">
+            <span id="pack-legend-text" class="text-xs sm:text-sm font-bold text-[#2B2D42]">👑 Giant Bean = 10 | Small = 1</span>
         </div>
     </div>
 
-    <!-- BOTTOM ANSWER CHOICES -->
-    <footer class="w-full px-3 pb-4 pt-1 z-20 max-w-5xl mx-auto">
-        <div id="answers-grid" class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
-            <!-- Populated dynamically by JS -->
+    <footer class="w-full px-4 pb-3 pt-1 z-20 max-w-6xl mx-auto">
+        <div id="answers-grid" class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3.5">
+            <!-- Populated dynamically -->
         </div>
     </footer>
 
-    <!-- FEEDBACK TOAST OVERLAY -->
-    <div id="feedback-overlay" class="fixed inset-0 pointer-events-none flex items-center justify-center z-50 opacity-0 transition-opacity duration-200">
-        <div id="feedback-box" class="chunky-card bg-[#6BF178] px-8 py-6 text-center max-w-md mx-4 transform scale-75 transition-transform duration-200">
-            <div id="feedback-emoji" class="text-6xl mb-2">🎉</div>
-            <h3 id="feedback-title" class="text-3xl font-bold text-[#2B2D42]">AWESOME!</h3>
-            <p id="feedback-word" class="text-2xl font-bold text-white drop-shadow-[0_3px_0_#2B2D42] mt-1">
-                42 = FORTY-TWO
-            </p>
+    <div id="feedback-overlay" class="fixed inset-0 pointer-events-none flex items-center justify-center z-40 opacity-0 transition-opacity duration-200">
+        <div id="feedback-box" class="chunky-card bg-[#6BF178] px-8 py-5 text-center max-w-md mx-4 transform scale-75 transition-transform duration-200">
+            <div id="feedback-emoji" class="text-5xl mb-1">🎉</div>
+            <p id="feedback-word" class="text-2xl sm:text-3xl font-bold text-white drop-shadow-[0_3px_0_#2B2D42]">42 = FORTY-TWO</p>
         </div>
     </div>
 
     <script>
-        /**************************************************************
-         * 1. ENGLISH NUMBERS DICTIONARY (0 TO 100)
-         **************************************************************/
+        const GAME_MODES = [
+            { id: 'analyze',  icon: '🔍', title: 'Spot & Count',    desc: 'How many of 1 color?',      bg: '#6BF178' },
+            { id: 'walk',     icon: '🏃', title: 'Walking Beans',   desc: 'Count moving beans!',       bg: '#FFE74C' },
+            { id: 'memory',   icon: '🎭', title: 'Memory Curtain',  desc: 'Watch, close & remember!',  bg: '#FF5964', lightText: true },
+            { id: 'coloradd', icon: '🎨', title: 'Color Plus +',    desc: 'Color A + Color B!',        bg: '#35A7FF', lightText: true },
+            { id: 'big100',   icon: '📦', title: 'Big 100 Trays',   desc: 'Tens & ones up to 100!',    bg: '#9B5DE5', lightText: true },
+            { id: 'mathadd',  icon: '➕', title: 'Addition Lab',    desc: '3D numbers A + B = ?',      bg: '#6BF178' },
+            { id: 'missing',  icon: '🧩', title: 'Missing Piece',   desc: 'Complete A + ? = C',        bg: '#FFE74C' },
+            { id: 'mathsub',  icon: '➖', title: 'Minus Pop',       desc: 'Take away A - B = ?',       bg: '#FF5964', lightText: true },
+            { id: 'timer',    icon: '⏱️', title: '60s Time Rush',   desc: 'Fast mix challenge!',       bg: '#35A7FF', lightText: true },
+            { id: 'closeup',  icon: '🥰', title: 'Meet & Speak',    desc: 'See cute beans up close!',  bg: '#9B5DE5', lightText: true }
+        ];
+
         const ONES_WORDS = [
             "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
             "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
@@ -262,31 +362,22 @@
             return str.replace(/\b\w/g, c => c.toUpperCase());
         }
 
-        /**************************************************************
-         * 2. SYNTHESIZED SOUND EFFECTS & SPEECH (Web Audio + TTS)
-         **************************************************************/
         let audioCtx = null;
-
         function ensureAudio() {
             if (!audioCtx) {
                 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
                 audioCtx = new AudioContextClass();
             }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        // Play quirky boing/pop sound effects like Endless Numbers / Dumb Ways
         function playSfx(type) {
             try {
                 ensureAudio();
                 const now = audioCtx.currentTime;
-
                 if (type === 'pop') {
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
-                    osc.type = 'sine';
                     osc.frequency.setValueAtTime(320, now);
                     osc.frequency.exponentialRampToValueAtTime(780, now + 0.11);
                     gain.gain.setValueAtTime(0.25, now);
@@ -308,6 +399,17 @@
                     gain.connect(audioCtx.destination);
                     osc.start(now);
                     osc.stop(now + 0.35);
+                } else if (type === 'curtain') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.frequency.setValueAtTime(420, now);
+                    osc.frequency.exponentialRampToValueAtTime(190, now + 0.45);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.46);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.46);
                 } else if (type === 'win') {
                     const notes = [523.25, 659.25, 783.99, 1046.50];
                     notes.forEach((freq, idx) => {
@@ -335,9 +437,7 @@
                     osc.start(now);
                     osc.stop(now + 0.31);
                 }
-            } catch (e) {
-                // Ignore audio errors on restricted devices
-            }
+            } catch (e) {}
         }
 
         function speakEnglish(text, pitch = 1.15, rate = 0.98) {
@@ -352,85 +452,127 @@
             } catch (e) {}
         }
 
-        /**************************************************************
-         * 3. MONSTER SPECIES DEFINITIONS (Dumb Ways / Endless style)
-         **************************************************************/
         const MONSTER_TYPES = [
-            {
-                id: 'pink',
-                singular: 'Pink Bean',
-                plural: 'Pink Beans',
-                color: 0xFF5964,
-                cssColor: '#FF5964',
-                eyeCount: 2,
-                hasHorns: false,
-                hatColor: 0xFFE74C
-            },
-            {
-                id: 'blue',
-                singular: 'Blue Cyclops',
-                plural: 'Blue Cyclops',
-                color: 0x35A7FF,
-                cssColor: '#35A7FF',
-                eyeCount: 1,
-                hasHorns: true,
-                hatColor: 0xFF5964
-            },
-            {
-                id: 'yellow',
-                singular: 'Sunny Blob',
-                plural: 'Sunny Blobs',
-                color: 0xFFE74C,
-                cssColor: '#FFE74C',
-                eyeCount: 2,
-                hasHorns: true,
-                hatColor: 0x9B5DE5
-            },
-            {
-                id: 'green',
-                singular: 'Minty Goober',
-                plural: 'Minty Goobers',
-                color: 0x6BF178,
-                cssColor: '#6BF178',
-                eyeCount: 3,
-                hasHorns: false,
-                hatColor: 0x35A7FF
-            },
-            {
-                id: 'purple',
-                singular: 'Purple Fuzz',
-                plural: 'Purple Fuzzes',
-                color: 0x9B5DE5,
-                cssColor: '#9B5DE5',
-                eyeCount: 2,
-                hasHorns: true,
-                hatColor: 0x6BF178
-            }
+            { id: 'pink', singular: 'Pink', plural: 'Pink', color: 0xFF5964, cssColor: '#FF5964', textColor: '#FFFFFF', eyeCount: 2, hasHorns: false, hatColor: 0xFFE74C },
+            { id: 'blue', singular: 'Blue', plural: 'Blue', color: 0x35A7FF, cssColor: '#35A7FF', textColor: '#FFFFFF', eyeCount: 1, hasHorns: true, hatColor: 0xFF5964 },
+            { id: 'yellow', singular: 'Yellow', plural: 'Yellow', color: 0xFFE74C, cssColor: '#FFE74C', textColor: '#2B2D42', eyeCount: 2, hasHorns: true, hatColor: 0x9B5DE5 },
+            { id: 'green', singular: 'Green', plural: 'Green', color: 0x6BF178, cssColor: '#6BF178', textColor: '#2B2D42', eyeCount: 3, hasHorns: false, hatColor: 0x35A7FF },
+            { id: 'purple', singular: 'Purple', plural: 'Purple', color: 0x9B5DE5, cssColor: '#9B5DE5', textColor: '#FFFFFF', eyeCount: 2, hasHorns: true, hatColor: 0x6BF178 }
         ];
 
-        /**************************************************************
-         * 4. THREE.JS 3D SCENE & PROCEDURAL MONSTER / NUMBER BUILDER
-         **************************************************************/
+        function formatColoredSpeciesBadge(monsterType) {
+            return `<span class="species-word-pill" style="background-color:${monsterType.cssColor}; color:${monsterType.textColor};">${monsterType.plural}</span>`;
+        }
+
         let scene, camera, renderer, stageGroup;
-        let interactiveMeshes = []; // Raycast targets
-        let animatedBeans = [];     // Monsters that breathe, blink & jump
-        let confettiParticles = []; // 3D explosion particles on correct answer
+        let interactiveMeshes = [];
+        let animatedBeans = [];
+        let confettiParticles = [];
         let raycaster, mouse;
 
-        // Camera drag state
         let isDragging = false;
         let dragMoved = false;
         let prevMouse = { x: 0, y: 0 };
         let targetRotationY = 0;
         let targetRotationX = 0.12;
+        let targetCameraZ = 21;
+        let targetCameraY = 8.0;
+        let isZoomedClose = false;
 
-        // Game state
-        let gameMode = 'analyze'; // 'analyze' | 'math' | 'mix'
+        // Session Setup State
+        let selectedPendingMode = null;
+        let setupTime = 5;       // seconds
+        let setupDiff = 2;       // 1 = Easy (1-20), 2 = Med (1-50), 3 = Hard (1-100)
+
+        let gameMode = 'analyze';
         let score = 0;
         let streak = 0;
         let currentQuestion = null;
         let tappedCounter = 0;
         let isTransitioning = false;
+
+        let timeLeft = 60;
+        let timerInterval = null;
+        let memoryTimeout = null;
+        let memoryCountdownInterval = null;
+        let showcaseWalking = true;
+
+        function renderMainMenuCards() {
+            const grid = document.getElementById('modes-grid');
+            grid.innerHTML = '';
+            GAME_MODES.forEach((m, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'chunky-btn p-3.5 sm:p-4 flex flex-col items-center justify-center text-center gap-1.5 bg-white hover:bg-[#FFFDF7]';
+                btn.innerHTML = `
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border-3 border-[#2B2D42] flex items-center justify-center text-3xl sm:text-4xl mb-1 animate-bean-bounce shadow-[0_4px_0_#2B2D42]" style="background-color:${m.bg};">
+                        ${m.icon}
+                    </div>
+                    <div class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#FFF6E5] border-2 border-[#2B2D42]">MODE ${idx + 1}</div>
+                    <h3 class="text-sm sm:text-base font-bold text-[#2B2D42] leading-tight">${m.title}</h3>
+                    <p class="text-[11px] font-semibold text-slate-500 leading-tight">${m.desc}</p>
+                `;
+                btn.onclick = () => openSetupModal(m);
+                grid.appendChild(btn);
+            });
+        }
+
+        function openSetupModal(modeObj) {
+            selectedPendingMode = modeObj;
+            playSfx('pop');
+            document.getElementById('setup-mode-icon').textContent = modeObj.icon;
+            document.getElementById('setup-mode-icon').style.backgroundColor = modeObj.bg;
+            document.getElementById('setup-mode-title').textContent = modeObj.title;
+            document.getElementById('setup-mode-desc').textContent = modeObj.desc;
+            document.getElementById('setup-modal').classList.remove('hidden');
+        }
+
+        function closeSetupModal() {
+            document.getElementById('setup-modal').classList.add('hidden');
+        }
+
+        function selectSetupTime(secs) {
+            setupTime = secs;
+            [3, 5, 8].forEach(s => {
+                const b = document.getElementById(`time-btn-${s}`);
+                if (!b) return;
+                if (s === secs) {
+                    b.className = 'chunky-btn py-2 text-sm font-bold bg-[#FFE74C]';
+                } else {
+                    b.className = 'chunky-btn py-2 text-sm font-bold bg-white';
+                }
+            });
+            playSfx('pop');
+        }
+
+        function selectSetupDiff(lvl) {
+            setupDiff = lvl;
+            [1, 2, 3].forEach(l => {
+                const b = document.getElementById(`diff-btn-${l}`);
+                if (!b) return;
+                if (l === lvl) {
+                    b.className = 'chunky-btn py-2 text-sm font-bold bg-[#6BF178]';
+                } else {
+                    b.className = 'chunky-btn py-2 text-sm font-bold bg-white';
+                }
+            });
+            playSfx('pop');
+        }
+
+        function startConfiguredGame() {
+            closeSetupModal();
+            document.getElementById('main-menu-modal').classList.add('hidden');
+            if (selectedPendingMode) {
+                setGameMode(selectedPendingMode.id);
+            }
+        }
+
+        function openMainMenu() {
+            clearMemoryTimers();
+            stopTimerMode();
+            setCurtainsClosed(false);
+            document.getElementById('main-menu-modal').classList.remove('hidden');
+            playSfx('pop');
+        }
 
         function initThreeScene() {
             const container = document.getElementById('canvas-wrapper');
@@ -450,7 +592,6 @@
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             container.appendChild(renderer.domElement);
 
-            // Bright cheerful lighting
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.78);
             scene.add(ambientLight);
 
@@ -461,15 +602,9 @@
             dirLight.shadow.mapSize.height = 1024;
             scene.add(dirLight);
 
-            const rimLight = new THREE.DirectionalLight(0x9b5de5, 0.25);
-            rimLight.position.set(-14, 10, -10);
-            scene.add(rimLight);
-
-            // Main rotatable group
             stageGroup = new THREE.Group();
             scene.add(stageGroup);
 
-            // Soft stage island platform
             const islandGeo = new THREE.CylinderGeometry(11.5, 12.2, 1.2, 48);
             const islandMat = new THREE.MeshToonMaterial({ color: 0xF4E8C1 });
             const island = new THREE.Mesh(islandGeo, islandMat);
@@ -477,7 +612,6 @@
             island.receiveShadow = true;
             stageGroup.add(island);
 
-            // Dark cartoon rim around island
             const rimGeo = new THREE.TorusGeometry(11.8, 0.18, 12, 64);
             const rimMat = new THREE.MeshBasicMaterial({ color: 0x2B2D42 });
             const rim = new THREE.Mesh(rimGeo, rimMat);
@@ -492,11 +626,8 @@
             window.addEventListener('resize', onWindowResize);
         }
 
-        // Builds a single quirky 3D Bean Monster
         function createBeanMonsterMesh(monsterType, scale = 1, countValue = 1) {
             const beanGroup = new THREE.Group();
-
-            // Pill/Bean Body (Cylinder + Top/Bottom Spheres)
             const bodyMat = new THREE.MeshToonMaterial({ color: monsterType.color });
             const darkMat = new THREE.MeshBasicMaterial({ color: 0x2B2D42 });
             const whiteMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
@@ -518,11 +649,7 @@
             botDome.position.y = 0.18;
             beanGroup.add(botDome);
 
-            // Quirky Eyes
-            const eyeOffsets = monsterType.eyeCount === 1
-                ? [0]
-                : (monsterType.eyeCount === 3 ? [-0.26, 0, 0.26] : [-0.20, 0.20]);
-
+            const eyeOffsets = monsterType.eyeCount === 1 ? [0] : (monsterType.eyeCount === 3 ? [-0.26, 0, 0.26] : [-0.20, 0.20]);
             eyeOffsets.forEach((ox, idx) => {
                 const eyeRadius = monsterType.eyeCount === 1 ? 0.24 : (monsterType.eyeCount === 3 ? 0.13 : 0.16);
                 const eyeWhite = new THREE.Mesh(new THREE.SphereGeometry(eyeRadius, 14, 14), whiteMat);
@@ -534,14 +661,12 @@
                 beanGroup.add(pupil);
             });
 
-            // Silly Smile / Derpy Mouth
             const mouthGeo = new THREE.TorusGeometry(0.16, 0.04, 8, 16, Math.PI);
             const mouth = new THREE.Mesh(mouthGeo, darkMat);
             mouth.rotation.x = Math.PI;
             mouth.position.set(0, 0.62, 0.54);
             beanGroup.add(mouth);
 
-            // Little Monster Horns or Propeller Beanie
             if (monsterType.hasHorns) {
                 const hornMat = new THREE.MeshToonMaterial({ color: monsterType.hatColor });
                 const hornGeo = new THREE.ConeGeometry(0.14, 0.38, 12);
@@ -549,32 +674,49 @@
                 leftHorn.position.set(-0.32, 1.52, 0);
                 leftHorn.rotation.z = 0.35;
                 beanGroup.add(leftHorn);
-
                 const rightHorn = new THREE.Mesh(hornGeo, hornMat);
                 rightHorn.position.set(0.32, 1.52, 0);
                 rightHorn.rotation.z = -0.35;
                 beanGroup.add(rightHorn);
             } else {
-                // Little tuft / party hat on top
                 const hatMat = new THREE.MeshToonMaterial({ color: monsterType.hatColor });
                 const hat = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.42, 14), hatMat);
                 hat.position.set(0, 1.62, 0);
                 beanGroup.add(hat);
             }
 
-            // Stubby Little Feet
             const footGeo = new THREE.SphereGeometry(0.16, 10, 10);
             const leftFoot = new THREE.Mesh(footGeo, darkMat);
             leftFoot.position.set(-0.24, -0.25, 0.12);
             beanGroup.add(leftFoot);
-
             const rightFoot = new THREE.Mesh(footGeo, darkMat);
             rightFoot.position.set(0.24, -0.25, 0.12);
             beanGroup.add(rightFoot);
 
-            beanGroup.scale.set(scale, scale, scale);
+            const cheekMat = new THREE.MeshBasicMaterial({ color: 0xFF8FA3 });
+            const cheekGeo = new THREE.SphereGeometry(0.08, 10, 10);
+            const leftCheek = new THREE.Mesh(cheekGeo, cheekMat);
+            leftCheek.position.set(-0.36, 0.72, 0.46);
+            beanGroup.add(leftCheek);
+            const rightCheek = new THREE.Mesh(cheekGeo, cheekMat);
+            rightCheek.position.set(0.36, 0.72, 0.46);
+            beanGroup.add(rightCheek);
 
-            // Store metadata for clicking/squishing
+            if (countValue >= 10) {
+                const badgeTex = makeBellyBadgeTexture(String(countValue), "#FFE74C", "#2B2D42");
+                const badgeGeo = new THREE.PlaneGeometry(0.78, 0.56);
+                const badgeMat = new THREE.MeshBasicMaterial({ map: badgeTex, transparent: true });
+                const bellyBadge = new THREE.Mesh(badgeGeo, badgeMat);
+                bellyBadge.position.set(0, 0.34, 0.63);
+                beanGroup.add(bellyBadge);
+
+                const crownMat = new THREE.MeshToonMaterial({ color: 0xFFD166 });
+                const crownRing = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.28, 0.24, 12), crownMat);
+                crownRing.position.set(0, 1.68, 0);
+                beanGroup.add(crownRing);
+            }
+
+            beanGroup.scale.set(scale, scale, scale);
             beanGroup.userData = {
                 isMonster: true,
                 countValue: countValue,
@@ -583,10 +725,14 @@
                 baseY: 0,
                 phase: Math.random() * Math.PI * 2,
                 jumpVel: 0,
-                jumpOffset: 0
+                jumpOffset: 0,
+                isWalking: false,
+                walkSpeed: countValue >= 10 ? (0.032 + Math.random() * 0.02) : (0.045 + Math.random() * 0.03),
+                walkAngle: Math.random() * Math.PI * 2,
+                leftFoot: leftFoot,
+                rightFoot: rightFoot
             };
 
-            // Link children back to beanGroup for raycasting
             beanGroup.traverse(child => {
                 if (child.isMesh) {
                     child.userData.parentBean = beanGroup;
@@ -598,12 +744,29 @@
             return beanGroup;
         }
 
-        // Creates a "10-Pack Party Pod" (A tray holding 10 mini monsters + floating "10" badge)
-        // Makes counting up to 100 fast, visual, and educational (Tens + Ones!)
+        function makeBellyBadgeTexture(text, bgHex, borderHex) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 160;
+            canvas.height = 116;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = borderHex;
+            roundRect(ctx, 4, 4, 152, 108, 28);
+            ctx.fill();
+            ctx.fillStyle = bgHex;
+            roundRect(ctx, 14, 14, 132, 88, 20);
+            ctx.fill();
+            ctx.fillStyle = borderHex;
+            ctx.font = "bold 66px 'Fredoka', sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(text, 80, 62);
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+            return texture;
+        }
+
         function createTenPackTray(monsterType) {
             const podGroup = new THREE.Group();
-
-            // Chunky Tray Base
             const trayGeo = new THREE.BoxGeometry(3.3, 0.45, 1.65);
             const trayMat = new THREE.MeshToonMaterial({ color: 0xFFFFFF });
             const tray = new THREE.Mesh(trayGeo, trayMat);
@@ -611,20 +774,17 @@
             tray.castShadow = true;
             podGroup.add(tray);
 
-            // Colored Stripe around tray
             const rimGeo = new THREE.BoxGeometry(3.42, 0.22, 1.77);
             const rimMat = new THREE.MeshToonMaterial({ color: monsterType.color });
             const rim = new THREE.Mesh(rimGeo, rimMat);
             rim.position.y = -0.25;
             podGroup.add(rim);
 
-            // 10 Mini Beans arranged in 2 rows of 5
             for (let r = 0; r < 2; r++) {
                 for (let c = 0; c < 5; c++) {
                     const miniBean = createBeanMonsterMesh(monsterType, 0.36, 10);
                     miniBean.position.set((c - 2) * 0.62, 0.12, (r - 0.5) * 0.65);
                     miniBean.userData.baseY = 0.12;
-                    // Link click to the whole 10-pack
                     miniBean.traverse(ch => {
                         if (ch.isMesh) ch.userData.parentBean = podGroup;
                     });
@@ -632,7 +792,6 @@
                 }
             }
 
-            // Floating "10" Sign Board in front of the tray
             const badgeTex = makeTextCanvasTexture("10", "#FFE74C", "#2B2D42");
             const badgeGeo = new THREE.PlaneGeometry(1.1, 0.75);
             const badgeMat = new THREE.MeshBasicMaterial({ map: badgeTex, transparent: true });
@@ -662,23 +821,18 @@
             return podGroup;
         }
 
-        // Creates a high-contrast 2D canvas texture for 3D Number Blocks (Endless Numbers style)
         function makeTextCanvasTexture(text, bgHex, borderHex, textColor = "#2B2D42") {
             const canvas = document.createElement('canvas');
             canvas.width = 256;
             canvas.height = 256;
             const ctx = canvas.getContext('2d');
-
-            // Rounded card fill
             ctx.fillStyle = borderHex;
             roundRect(ctx, 8, 8, 240, 240, 44);
             ctx.fill();
-
             ctx.fillStyle = bgHex;
             roundRect(ctx, 22, 22, 212, 212, 34);
             ctx.fill();
 
-            // Cute monster eyes on top of the number block!
             ctx.fillStyle = "#FFFFFF";
             ctx.beginPath();
             ctx.arc(95, 52, 18, 0, Math.PI * 2);
@@ -694,7 +848,6 @@
             ctx.arc(164, 52, 8, 0, Math.PI * 2);
             ctx.fill();
 
-            // Big Bold Number/Operator
             ctx.fillStyle = textColor;
             ctx.font = "bold 110px 'Fredoka', sans-serif";
             ctx.textAlign = "center";
@@ -716,29 +869,24 @@
             ctx.closePath();
         }
 
-        // Creates a 3D Living Number Block (For Math Lab equations)
         function createMonsterNumberBlock(label, colorHex, speakVal) {
             const group = new THREE.Group();
-
             const boxGeo = new THREE.BoxGeometry(2.7, 2.7, 1.3);
             const sideMat = new THREE.MeshToonMaterial({ color: new THREE.Color(colorHex) });
             const frontTex = makeTextCanvasTexture(label, colorHex, "#2B2D42");
             const frontMat = new THREE.MeshBasicMaterial({ map: frontTex });
-
             const materials = [sideMat, sideMat, sideMat, sideMat, frontMat, sideMat];
             const cube = new THREE.Mesh(boxGeo, materials);
             cube.position.y = 1.1;
             cube.castShadow = true;
             group.add(cube);
 
-            // Little monster horns on top of number block
             const hornMat = new THREE.MeshToonMaterial({ color: 0xFF5964 });
             const hornGeo = new THREE.ConeGeometry(0.25, 0.6, 12);
             const hL = new THREE.Mesh(hornGeo, hornMat);
             hL.position.set(-0.8, 2.7, 0);
             hL.rotation.z = 0.3;
             group.add(hL);
-
             const hR = new THREE.Mesh(hornGeo, hornMat);
             hR.position.set(0.8, 2.7, 0);
             hR.rotation.z = -0.3;
@@ -766,11 +914,7 @@
             return group;
         }
 
-        /**************************************************************
-         * 5. QUESTION GENERATORS (ANALYZE THE PICTURE & MATH UP TO 100)
-         **************************************************************/
         function clearStage() {
-            // Remove everything except island & rim (first 2 children)
             while (stageGroup.children.length > 2) {
                 stageGroup.remove(stageGroup.children[stageGroup.children.length - 1]);
             }
@@ -784,200 +928,361 @@
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
-        // Generates an "Analyze the Picture" challenge
-        function generateAnalyzeChallenge() {
+        function getMaxRange() {
+            if (setupDiff === 1) return 20;
+            if (setupDiff === 2) return 50;
+            return 100;
+        }
+
+        function generateSingleColorCountChallenge(enableWalking = false) {
             clearStage();
-            const subType = Math.random();
+            const shuffled = [...MONSTER_TYPES].sort(() => Math.random() - 0.5);
+            const targetType = shuffled[0];
+            const distractorA = shuffled[1];
+            const maxR = getMaxRange();
 
-            // Subtype A: Count a specific species in a mixed party (1 to 20)
-            if (subType < 0.45) {
-                const shuffled = [...MONSTER_TYPES].sort(() => Math.random() - 0.5);
-                const targetType = shuffled[0];
-                const distractorA = shuffled[1];
-                const distractorB = shuffled[2];
+            const useBigTens = maxR >= 30 && Math.random() < 0.5;
+            if (useBigTens) {
+                const legend = document.getElementById('pack-legend');
+                document.getElementById('pack-legend-text').textContent = '👑 Giant = 10 | Small = 1';
+                legend.classList.remove('hidden');
+                legend.classList.add('flex');
 
-                const targetCount = randomInt(3, 18);
-                const distCountA = randomInt(2, 8);
-                const distCountB = randomInt(2, 6);
+                const maxTens = Math.min(Math.floor(maxR / 10), 9);
+                const tens = randomInt(1, maxTens);
+                const ones = randomInt(0, 8);
+                const targetTotal = tens * 10 + ones;
 
-                const allToSpawn = [];
-                for (let i = 0; i < targetCount; i++) allToSpawn.push(targetType);
-                for (let i = 0; i < distCountA; i++) allToSpawn.push(distractorA);
-                for (let i = 0; i < distCountB; i++) allToSpawn.push(distractorB);
+                const specs = [];
+                for (let i = 0; i < tens; i++) specs.push({ type: targetType, value: 10, scale: 1.48 });
+                for (let i = 0; i < ones; i++) specs.push({ type: targetType, value: 1, scale: 0.85 });
+                specs.push({ type: distractorA, value: 10, scale: 1.48 });
 
-                // Shuffle positions on the island
-                allToSpawn.sort(() => Math.random() - 0.5);
-                layoutIndividualMonsters(allToSpawn);
+                specs.sort(() => Math.random() - 0.5);
+                layoutMonsterSpecs(specs, enableWalking);
 
-                const template = Math.random() < 0.5
-                    ? `How many ${targetType.plural} are there?`
-                    : `How many ${targetType.plural} do you see?`;
-
-                document.getElementById('pack-legend').classList.add('sm:hidden');
-
+                const badge = formatColoredSpeciesBadge(targetType);
                 return {
-                    type: 'analyze',
-                    badgeText: '🔍 ANALYZE THE PICTURE',
-                    questionText: template,
-                    subText: `Look closely! Count only the ${targetType.plural} (${numberToEnglishWords(targetCount)}? Let's check!)`,
-                    correctAnswer: targetCount,
-                    targetSpeciesId: targetType.id
+                    questionHTML: `How many ${badge} are there?`,
+                    spokenPrompt: `How many ${targetType.plural} beans are there?`,
+                    correctAnswer: targetTotal
                 };
             }
-            // Subtype B: Big Number Visual Count up to 100 using 10-Pack Trays + Loose Ones!
-            else {
-                const targetType = MONSTER_TYPES[randomInt(0, MONSTER_TYPES.length - 1)];
-                // Pick a number between 21 and 100
-                const totalCount = randomInt(21, 100);
-                const tens = Math.floor(totalCount / 10);
-                const ones = totalCount % 10;
 
-                layoutTensAndOnes(targetType, tens, ones);
+            document.getElementById('pack-legend').classList.add('hidden');
+            const targetCount = randomInt(3, Math.min(maxR, 18));
+            const distCountA = randomInt(2, 6);
 
-                const template = Math.random() < 0.5
-                    ? `How many ${targetType.plural} are there in total?`
-                    : `How many ${targetType.plural} do you see?`;
+            const allToSpawn = [];
+            for (let i = 0; i < targetCount; i++) allToSpawn.push(targetType);
+            for (let i = 0; i < distCountA; i++) allToSpawn.push(distractorA);
+            allToSpawn.sort(() => Math.random() - 0.5);
+            layoutIndividualMonsters(allToSpawn, enableWalking);
 
-                document.getElementById('pack-legend').classList.remove('sm:hidden');
+            const badge = formatColoredSpeciesBadge(targetType);
+            return {
+                questionHTML: `How many ${badge} do you see?`,
+                spokenPrompt: `How many ${targetType.plural} beans do you see?`,
+                correctAnswer: targetCount
+            };
+        }
 
-                return {
-                    type: 'analyze',
-                    badgeText: '📦 BIG COUNT (UP TO 100)',
-                    questionText: template,
-                    subText: `Each big tray has 10 monsters! Count by tens and ones.`,
-                    correctAnswer: totalCount,
-                    targetSpeciesId: targetType.id
-                };
+        function setCurtainsClosed(closed) {
+            const container = document.getElementById('curtain-container');
+            const badge = document.getElementById('curtain-badge');
+            if (closed) {
+                container.classList.add('curtains-closed');
+                badge.classList.remove('opacity-0');
+                badge.classList.add('opacity-100');
+            } else {
+                container.classList.remove('curtains-closed');
+                badge.classList.remove('opacity-100');
+                badge.classList.add('opacity-0');
             }
         }
 
-        // Places individual monsters neatly in concentric rings or grid
-        function layoutIndividualMonsters(speciesList) {
-            const total = speciesList.length;
-            const cols = Math.ceil(Math.sqrt(total * 1.4));
-            const rows = Math.ceil(total / cols);
-            const spacingX = 1.95;
-            const spacingZ = 1.85;
+        function clearMemoryTimers() {
+            if (memoryTimeout) { clearTimeout(memoryTimeout); memoryTimeout = null; }
+            if (memoryCountdownInterval) { clearInterval(memoryCountdownInterval); memoryCountdownInterval = null; }
+        }
 
-            speciesList.forEach((mType, index) => {
+        function startMemoryCurtainRound() {
+            clearMemoryTimers();
+            clearStage();
+            setCurtainsClosed(false);
+            document.getElementById('answers-grid').innerHTML = '';
+
+            const shuffled = [...MONSTER_TYPES].sort(() => Math.random() - 0.5);
+            const colorA = shuffled[0];
+            const colorB = shuffled[1];
+            let answer = 0;
+            let finalHTML = '';
+            let finalSpoken = '';
+            const specsToSpawn = [];
+            const maxR = getMaxRange();
+
+            const useBigBeans = maxR >= 30 && Math.random() < 0.6;
+            const legend = document.getElementById('pack-legend');
+            if (useBigBeans) {
+                document.getElementById('pack-legend-text').textContent = '👑 Giant = 10 | Small = 1';
+                legend.classList.remove('hidden');
+                legend.classList.add('flex');
+            } else {
+                legend.classList.add('hidden');
+            }
+
+            const subType = randomInt(1, 3);
+            if (subType === 1) {
+                // Total beans
+                if (useBigBeans) {
+                    const tens = randomInt(1, Math.min(Math.floor(maxR/10), 7));
+                    const ones = randomInt(0, 6);
+                    answer = tens * 10 + ones;
+                    for (let i = 0; i < tens; i++) specsToSpawn.push({ type: shuffled[i%2], value: 10, scale: 1.5 });
+                    for (let i = 0; i < ones; i++) specsToSpawn.push({ type: shuffled[0], value: 1, scale: 0.82 });
+                } else {
+                    answer = randomInt(4, Math.min(maxR, 15));
+                    for (let i = 0; i < answer; i++) specsToSpawn.push({ type: shuffled[i%2], value: 1, scale: 0.95 });
+                }
+                finalHTML = `How many beans did you see?`;
+                finalSpoken = `How many beans did you see?`;
+            } else if (subType === 2) {
+                // Specific Color
+                if (useBigBeans) {
+                    const tensA = randomInt(1, 5);
+                    const onesA = randomInt(0, 5);
+                    answer = tensA * 10 + onesA;
+                    for (let i = 0; i < tensA; i++) specsToSpawn.push({ type: colorA, value: 10, scale: 1.5 });
+                    for (let i = 0; i < onesA; i++) specsToSpawn.push({ type: colorA, value: 1, scale: 0.82 });
+                    specsToSpawn.push({ type: colorB, value: 10, scale: 1.5 });
+                } else {
+                    answer = randomInt(3, 9);
+                    for (let i = 0; i < answer; i++) specsToSpawn.push({ type: colorA, value: 1, scale: 0.95 });
+                    for (let i = 0; i < 3; i++) specsToSpawn.push({ type: colorB, value: 1, scale: 0.95 });
+                }
+                finalHTML = `How many ${formatColoredSpeciesBadge(colorA)} did you see?`;
+                finalSpoken = `How many ${colorA.plural} beans did you see?`;
+            } else {
+                // Color A + Color B Addition memory
+                const countA = randomInt(2, 6);
+                const countB = randomInt(2, 6);
+                answer = countA + countB;
+                for (let i = 0; i < countA; i++) specsToSpawn.push({ type: colorA, value: 1, scale: 0.95 });
+                for (let i = 0; i < countB; i++) specsToSpawn.push({ type: colorB, value: 1, scale: 0.95 });
+                finalHTML = `How many ${formatColoredSpeciesBadge(colorA)} + ${formatColoredSpeciesBadge(colorB)}?`;
+                finalSpoken = `How many ${colorA.plural} plus ${colorB.plural} beans did you see?`;
+            }
+
+            specsToSpawn.sort(() => Math.random() - 0.5);
+            layoutMonsterSpecs(specsToSpawn, true);
+            boingAllMonsters();
+
+            currentQuestion = { questionHTML: finalHTML, spokenPrompt: finalSpoken, correctAnswer: answer };
+
+            let watchSeconds = setupTime; // Uses chosen setup time!
+            const timerBadge = document.getElementById('timer-badge');
+            timerBadge.classList.remove('hidden');
+            timerBadge.classList.add('flex');
+            document.getElementById('timer-val').textContent = `👀 ${watchSeconds}s`;
+
+            document.getElementById('question-text').innerHTML = `👀 WATCH & COUNT! (${watchSeconds}s)`;
+            speakEnglish("Watch carefully!", 1.15, 1.05);
+
+            memoryCountdownInterval = setInterval(() => {
+                watchSeconds--;
+                if (watchSeconds > 0) {
+                    document.getElementById('timer-val').textContent = `👀 ${watchSeconds}s`;
+                    document.getElementById('question-text').innerHTML = `👀 WATCH & COUNT! (${watchSeconds}s)`;
+                }
+            }, 1000);
+
+            memoryTimeout = setTimeout(() => {
+                clearMemoryTimers();
+                timerBadge.classList.add('hidden');
+                timerBadge.classList.remove('flex');
+                playSfx('curtain');
+                setCurtainsClosed(true);
+                document.getElementById('question-text').innerHTML = currentQuestion.questionHTML;
+                renderAnswerChoices(currentQuestion.correctAnswer);
+                speakCurrentQuestion();
+            }, watchSeconds * 1000);
+        }
+
+        function generateColorAdditionChallenge() {
+            clearStage();
+            const shuffled = [...MONSTER_TYPES].sort(() => Math.random() - 0.5);
+            const colorA = shuffled[0];
+            const colorB = shuffled[1];
+            const maxR = getMaxRange();
+
+            const useBigTens = maxR >= 30 && Math.random() < 0.5;
+            const badgeA = formatColoredSpeciesBadge(colorA);
+            const badgeB = formatColoredSpeciesBadge(colorB);
+
+            if (useBigTens) {
+                const legend = document.getElementById('pack-legend');
+                document.getElementById('pack-legend-text').textContent = '👑 Giant = 10 | Small = 1';
+                legend.classList.remove('hidden');
+                legend.classList.add('flex');
+
+                const tensA = randomInt(1, 3);
+                const tensB = randomInt(1, 3);
+                const onesA = randomInt(1, 4);
+                const onesB = randomInt(1, 4);
+                const totalAnswer = (tensA + tensB) * 10 + onesA + onesB;
+
+                const specs = [];
+                for (let i = 0; i < tensA; i++) specs.push({ type: colorA, value: 10, scale: 1.48 });
+                for (let i = 0; i < onesA; i++) specs.push({ type: colorA, value: 1, scale: 0.85 });
+                for (let i = 0; i < tensB; i++) specs.push({ type: colorB, value: 10, scale: 1.48 });
+                for (let i = 0; i < onesB; i++) specs.push({ type: colorB, value: 1, scale: 0.85 });
+
+                specs.sort(() => Math.random() - 0.5);
+                layoutMonsterSpecs(specs, false);
+
+                return {
+                    questionHTML: `How many ${badgeA} + ${badgeB} are there?`,
+                    spokenPrompt: `How many ${colorA.plural} plus ${colorB.plural} beans are there?`,
+                    correctAnswer: totalAnswer
+                };
+            }
+
+            document.getElementById('pack-legend').classList.add('hidden');
+            const countA = randomInt(3, Math.min(maxR/2, 10));
+            const countB = randomInt(2, Math.min(maxR/2, 9));
+
+            const allToSpawn = [];
+            for (let i = 0; i < countA; i++) allToSpawn.push(colorA);
+            for (let i = 0; i < countB; i++) allToSpawn.push(colorB);
+            allToSpawn.sort(() => Math.random() - 0.5);
+            layoutIndividualMonsters(allToSpawn, false);
+
+            return {
+                questionHTML: `How many ${badgeA} + ${badgeB} do you see?`,
+                spokenPrompt: `How many ${colorA.plural} plus ${colorB.plural} beans do you see?`,
+                correctAnswer: countA + countB
+            };
+        }
+
+        function generateBig100Challenge() {
+            clearStage();
+            const targetType = MONSTER_TYPES[randomInt(0, MONSTER_TYPES.length - 1)];
+            const maxR = getMaxRange();
+            const totalCount = Math.random() < 0.4 ? randomInt(1, Math.floor(maxR/10)) * 10 : randomInt(21, maxR);
+            const tens = Math.floor(totalCount / 10);
+            const ones = totalCount % 10;
+
+            layoutTensAndOnes(targetType, tens, ones);
+
+            const badge = formatColoredSpeciesBadge(targetType);
+            const legend = document.getElementById('pack-legend');
+            document.getElementById('pack-legend-text').textContent = '📦 Tray = 10 | Single = 1';
+            legend.classList.remove('hidden');
+            legend.classList.add('flex');
+
+            return {
+                questionHTML: `How many ${badge} are there?`,
+                spokenPrompt: `How many ${targetType.plural} beans are there?`,
+                correctAnswer: totalCount
+            };
+        }
+
+        function layoutIndividualMonsters(speciesList, enableWalking = false) {
+            const specs = speciesList.map(mType => ({ type: mType, value: 1, scale: 0.95 }));
+            layoutMonsterSpecs(specs, enableWalking);
+        }
+
+        function layoutMonsterSpecs(specsList, enableWalking = false) {
+            const total = specsList.length;
+            const cols = Math.ceil(Math.sqrt(total * 1.35));
+            const rows = Math.ceil(total / cols);
+            const spacingX = 2.25;
+            const spacingZ = 2.1;
+
+            specsList.forEach((spec, index) => {
                 const r = Math.floor(index / cols);
                 const c = index % cols;
-                const x = (c - (cols - 1) / 2) * spacingX + (Math.random() - 0.5) * 0.25;
-                const z = (r - (rows - 1) / 2) * spacingZ + (Math.random() - 0.5) * 0.25;
+                const x = (c - (cols - 1) / 2) * spacingX + (Math.random() - 0.5) * 0.35;
+                const z = (r - (rows - 1) / 2) * spacingZ + (Math.random() - 0.5) * 0.35;
 
-                const bean = createBeanMonsterMesh(mType, 0.92, 1);
+                const bean = createBeanMonsterMesh(spec.type, spec.scale || 0.95, spec.value || 1);
                 bean.position.set(x, 0, z);
+                bean.userData.isWalking = enableWalking;
                 stageGroup.add(bean);
             });
         }
 
-        // Places 10-Pack Trays in the back and Single Monsters in the front
         function layoutTensAndOnes(monsterType, tensCount, onesCount) {
-            // Layout 10-packs in rows of up to 5
-            const cols = Math.min(tensCount, 5);
-            const rows = Math.ceil(tensCount / 5);
-            const spacingX = 3.75;
-            const spacingZ = 2.35;
+            const trayCols = Math.min(tensCount, 5);
+            const traySpacingX = 3.65;
+            const traySpacingZ = 2.25;
 
-            for (let i = 0; i < tensCount; i++) {
-                const r = Math.floor(i / 5);
-                const c = i % 5;
-                const colsInThisRow = (r === rows - 1 && tensCount % 5 !== 0) ? (tensCount % 5) : cols;
-                const x = (c - (colsInThisRow - 1) / 2) * spacingX;
-                const z = (r - (rows - 1) / 2) * spacingZ - (onesCount > 0 ? 1.5 : 0);
-
-                const pack = createTenPackTray(monsterType);
-                pack.position.set(x, 0.25, z);
-                pack.userData.baseY = 0.25;
-                stageGroup.add(pack);
+            for (let t = 0; t < tensCount; t++) {
+                const row = Math.floor(t / 5);
+                const col = t % 5;
+                const pod = createTenPackTray(monsterType);
+                const px = (col - (trayCols - 1) / 2) * traySpacingX;
+                const pz = -2.2 + row * traySpacingZ;
+                pod.position.set(px, 0, pz);
+                stageGroup.add(pod);
             }
 
-            // Layout loose single monsters in front row
-            if (onesCount > 0) {
-                const oneSpacing = 1.55;
-                const frontZ = (rows * 1.2) + 1.4;
-                for (let j = 0; j < onesCount; j++) {
-                    const x = (j - (onesCount - 1) / 2) * oneSpacing;
-                    const single = createBeanMonsterMesh(monsterType, 0.82, 1);
-                    single.position.set(x, 0, frontZ);
-                    stageGroup.add(single);
-                }
+            const onesSpacingX = 1.75;
+            for (let u = 0; u < onesCount; u++) {
+                const singleBean = createBeanMonsterMesh(monsterType, 0.9, 1);
+                const ux = (u - (onesCount - 1) / 2) * onesSpacingX;
+                const uz = tensCount > 5 ? 3.2 : 1.8;
+                singleBean.position.set(ux, 0, uz);
+                stageGroup.add(singleBean);
             }
         }
 
-        // Generates a "Math Lab" challenge (Addition, Subtraction, or Complete the Calculation up to 100)
-        function generateMathChallenge() {
+        function generateMathChallenge(forcedKind = 'add') {
             clearStage();
-            document.getElementById('pack-legend').classList.add('sm:hidden');
+            document.getElementById('pack-legend').classList.add('hidden');
+            const maxR = getMaxRange();
 
-            const mathVariant = Math.random();
             let a, b, op, result, missingPos;
 
-            if (mathVariant < 0.38) {
-                // Standard Addition up to 100: A + B = ?
+            if (forcedKind === 'add') {
                 op = '+';
-                result = randomInt(15, 100);
-                a = randomInt(5, result - 5);
+                result = randomInt(10, maxR);
+                a = randomInt(3, result - 2);
                 b = result - a;
                 missingPos = 'result';
-            } else if (mathVariant < 0.72) {
-                // Standard Subtraction within 100: A - B = ?
-                op = '-';
-                a = randomInt(20, 100);
-                b = randomInt(5, a - 4);
-                result = a - b;
-                missingPos = 'result';
-            } else {
-                // Complete the Calculation: A + ? = C  or  ? + B = C
+            } else if (forcedKind === 'missing') {
                 op = '+';
-                result = randomInt(20, 100);
-                a = randomInt(6, result - 6);
+                result = randomInt(12, maxR);
+                a = randomInt(4, result - 3);
                 b = result - a;
                 missingPos = Math.random() < 0.5 ? 'second' : 'first';
+            } else {
+                op = '-';
+                a = randomInt(12, maxR);
+                b = randomInt(3, a - 3);
+                result = a - b;
+                missingPos = 'result';
             }
 
-            // Build 5 giant 3D Endless-Numbers blocks across the stage
             const tokens = [
-                {
-                    text: missingPos === 'first' ? '?' : String(a),
-                    color: missingPos === 'first' ? '#FFE74C' : '#FF5964',
-                    speak: missingPos === 'first' ? 'mystery number' : numberToEnglishWords(a)
-                },
-                {
-                    text: op,
-                    color: '#35A7FF',
-                    speak: op === '+' ? 'plus' : 'minus'
-                },
-                {
-                    text: missingPos === 'second' ? '?' : String(b),
-                    color: missingPos === 'second' ? '#FFE74C' : '#6BF178',
-                    speak: missingPos === 'second' ? 'mystery number' : numberToEnglishWords(b)
-                },
-                {
-                    text: '=',
-                    color: '#9B5DE5',
-                    speak: 'equals'
-                },
-                {
-                    text: missingPos === 'result' ? '?' : String(result),
-                    color: missingPos === 'result' ? '#FFE74C' : '#FF5964',
-                    speak: missingPos === 'result' ? 'how many' : numberToEnglishWords(result)
-                }
+                { text: missingPos === 'first' ? '?' : String(a), color: missingPos === 'first' ? '#FFE74C' : '#FF5964', speak: missingPos === 'first' ? 'what number' : numberToEnglishWords(a) },
+                { text: op, color: '#35A7FF', speak: op === '+' ? 'plus' : 'minus' },
+                { text: missingPos === 'second' ? '?' : String(b), color: missingPos === 'second' ? '#FFE74C' : '#6BF178', speak: missingPos === 'second' ? 'what number' : numberToEnglishWords(b) },
+                { text: '=', color: '#9B5DE5', speak: 'equals' },
+                { text: missingPos === 'result' ? '?' : String(result), color: missingPos === 'result' ? '#FFE74C' : '#FF5964', speak: missingPos === 'result' ? 'how many' : numberToEnglishWords(result) }
             ];
 
             const spacing = 3.25;
             tokens.forEach((tok, idx) => {
                 const block = createMonsterNumberBlock(tok.text, tok.color, tok.speak);
-                block.position.set((idx - 2) * spacing, 0, 0);
+                block.position.set((idx - 2) * spacing, 0, -0.5);
                 stageGroup.add(block);
             });
 
-            // Also spawn cute cheering monsters in front!
-            const cheerCount = 4;
-            for (let i = 0; i < cheerCount; i++) {
+            for (let i = 0; i < 4; i++) {
                 const mType = MONSTER_TYPES[i % MONSTER_TYPES.length];
-                const fan = createBeanMonsterMesh(mType, 0.65, 1);
-                fan.position.set((i - 1.5) * 3.4, 0, 3.3);
+                const fan = createBeanMonsterMesh(mType, 0.72, 1);
+                fan.position.set((i - 1.5) * 3.4, 0, 3.2);
                 stageGroup.add(fan);
             }
 
@@ -988,112 +1293,178 @@
             if (missingPos === 'result') {
                 answerValue = result;
                 const opWord = op === '+' ? 'plus' : 'minus';
-                displayPrompt = `Solve: ${a} ${op} ${b} = ?`;
-                spokenEquation = `What is ${numberToEnglishWords(a)} ${opWord} ${numberToEnglishWords(b)}?`;
+                displayPrompt = `${a} ${op} ${b} = ?`;
+                spokenEquation = `How much is ${numberToEnglishWords(a)} ${opWord} ${numberToEnglishWords(b)}?`;
             } else if (missingPos === 'second') {
                 answerValue = b;
-                displayPrompt = `Complete the calculation: ${a} + ? = ${result}`;
+                displayPrompt = `${a} + ? = ${result}`;
                 spokenEquation = `${numberToEnglishWords(a)} plus what number equals ${numberToEnglishWords(result)}?`;
             } else {
                 answerValue = a;
-                displayPrompt = `Complete the calculation: ? + ${b} = ${result}`;
+                displayPrompt = `? + ${b} = ${result}`;
                 spokenEquation = `What number plus ${numberToEnglishWords(b)} equals ${numberToEnglishWords(result)}?`;
             }
 
-            return {
-                type: 'math',
-                badgeText: missingPos === 'result' ? '🧮 MATH CALCULATION' : '🧩 COMPLETE THE CALCULATION',
-                questionText: displayPrompt,
-                subText: `"${capitalizeWords(spokenEquation)}"`,
-                spokenPrompt: spokenEquation,
-                correctAnswer: answerValue
-            };
+            return { questionHTML: displayPrompt, spokenPrompt: spokenEquation, correctAnswer: answerValue };
         }
 
-        /**************************************************************
-         * 6. UI FLOW, OPTIONS GENERATION & ANSWER VALIDATION
-         **************************************************************/
+        function setupCloseUpMode() {
+            spawnShowcaseSquad(5);
+            isZoomedClose = true;
+            targetCameraZ = 10.5;
+            targetCameraY = 3.4;
+            targetRotationY = 0;
+            targetRotationX = 0.05;
+            document.getElementById('pack-legend').classList.add('hidden');
+            document.getElementById('question-text').innerHTML = 'Tap a Bean to Count & Speak!';
+            document.getElementById('answers-grid').innerHTML = '';
+
+            const grid = document.getElementById('answers-grid');
+            const funNumbers = [10, 25, 50, 100];
+            funNumbers.forEach(n => {
+                const word = capitalizeWords(numberToEnglishWords(n));
+                const btn = document.createElement('button');
+                btn.className = 'answer-option-btn py-2 px-3 flex flex-col items-center justify-center text-center';
+                btn.innerHTML = `
+                    <span class="text-2xl sm:text-3xl font-bold text-[#2B2D42]">${n}</span>
+                    <span class="text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full bg-[#FFE74C] text-[#2B2D42] border-2 border-[#2B2D42] mt-0.5">${word}</span>
+                `;
+                btn.onclick = () => {
+                    tappedCounter = n;
+                    const pill = document.getElementById('interactive-counter');
+                    document.getElementById('tapped-count-text').textContent = `${n} - ${word}!`;
+                    pill.classList.remove('hidden');
+                    speakEnglish(word, 1.2, 1.0);
+                    boingAllMonsters(0.28);
+                    spawn3DConfetti();
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function spawnShowcaseSquad(count = 5) {
+            clearStage();
+            if (count === 1) {
+                const mType = MONSTER_TYPES[randomInt(0, MONSTER_TYPES.length - 1)];
+                const giantBean = createBeanMonsterMesh(mType, 1.85, 1);
+                giantBean.position.set(0, 0, 1.2);
+                giantBean.userData.isWalking = showcaseWalking;
+                stageGroup.add(giantBean);
+                speakEnglish(`Hello! I am a ${mType.singular} bean!`, 1.25, 1.0);
+            } else {
+                MONSTER_TYPES.forEach((mType, idx) => {
+                    const bean = createBeanMonsterMesh(mType, 1.25, 1);
+                    const angle = ((idx - 2) * 0.42);
+                    bean.position.set(Math.sin(angle) * 5.2, 0, Math.cos(angle) * 2.2);
+                    bean.userData.isWalking = showcaseWalking;
+                    stageGroup.add(bean);
+                });
+            }
+            boingAllMonsters(0.22);
+        }
+
+        function toggleWalkInPlace() {
+            showcaseWalking = !showcaseWalking;
+            animatedBeans.forEach(b => { b.userData.isWalking = showcaseWalking; });
+            playSfx('pop');
+        }
+
         function nextRound() {
             isTransitioning = false;
-            resetCameraView();
+            clearMemoryTimers();
+            setCurtainsClosed(false);
 
-            let chooseType = gameMode;
-            if (gameMode === 'mix') {
-                chooseType = Math.random() < 0.5 ? 'analyze' : 'math';
+            if (gameMode === 'closeup') {
+                setupCloseUpMode();
+                return;
             }
 
-            currentQuestion = chooseType === 'analyze'
-                ? generateAnalyzeChallenge()
-                : generateMathChallenge();
+            if (gameMode === 'memory') {
+                startMemoryCurtainRound();
+                return;
+            }
 
-            // Update Banner UI
-            document.getElementById('question-badge').textContent = currentQuestion.badgeText;
-            document.getElementById('question-text').textContent = currentQuestion.questionText;
-            document.getElementById('question-subtext').textContent = currentQuestion.subText;
+            if (!isZoomedClose) {
+                resetCameraView();
+            }
 
+            if (gameMode === 'analyze') {
+                currentQuestion = generateSingleColorCountChallenge(false);
+            } else if (gameMode === 'walk') {
+                currentQuestion = generateSingleColorCountChallenge(true);
+            } else if (gameMode === 'coloradd') {
+                currentQuestion = generateColorAdditionChallenge();
+            } else if (gameMode === 'big100') {
+                currentQuestion = generateBig100Challenge();
+            } else if (gameMode === 'mathadd') {
+                currentQuestion = generateMathChallenge('add');
+            } else if (gameMode === 'missing') {
+                currentQuestion = generateMathChallenge('missing');
+            } else if (gameMode === 'mathsub') {
+                currentQuestion = generateMathChallenge('sub');
+            } else if (gameMode === 'timer') {
+                const mix = ['analyze', 'walk', 'coloradd', 'big100', 'mathadd', 'missing'];
+                const pick = mix[randomInt(0, mix.length - 1)];
+                if (pick === 'analyze') currentQuestion = generateSingleColorCountChallenge(false);
+                else if (pick === 'walk') currentQuestion = generateSingleColorCountChallenge(true);
+                else if (pick === 'coloradd') currentQuestion = generateColorAdditionChallenge();
+                else if (pick === 'big100') currentQuestion = generateBig100Challenge();
+                else if (pick === 'mathadd') currentQuestion = generateMathChallenge('add');
+                else currentQuestion = generateMathChallenge('missing');
+            }
+
+            document.getElementById('question-text').innerHTML = currentQuestion.questionHTML;
             renderAnswerChoices(currentQuestion.correctAnswer);
-
-            // Entrance bounce for all 3D objects
             boingAllMonsters();
 
-            // Automatically read question aloud in English
             setTimeout(() => {
                 speakCurrentQuestion();
-            }, 250);
+            }, 200);
         }
 
         function speakCurrentQuestion() {
             if (!currentQuestion) return;
-            const textToSpeak = currentQuestion.spokenPrompt || currentQuestion.questionText;
-            speakEnglish(textToSpeak);
+            speakEnglish(currentQuestion.spokenPrompt || "How many?");
         }
 
         function renderAnswerChoices(correctVal) {
             const choices = new Set([correctVal]);
+            const isExactTen = (correctVal % 10 === 0);
+            const maxR = getMaxRange();
 
-            // Generate smart distractors (close numbers, +/- 10, or swapped digits)
-            const candidates = [
-                correctVal + 1,
-                correctVal - 1,
-                correctVal + 2,
-                correctVal - 2,
-                correctVal + 10,
-                correctVal - 10,
-                correctVal + 5,
-                correctVal - 5
-            ];
+            const candidates = isExactTen
+                ? [correctVal + 10, correctVal - 10, correctVal + 20, correctVal - 20, correctVal + 30, correctVal - 30]
+                : [correctVal + 10, correctVal - 10, correctVal + 1, correctVal - 1, correctVal + 2, correctVal - 2];
 
-            // Shuffle candidates
             candidates.sort(() => Math.random() - 0.5);
             for (const c of candidates) {
                 if (choices.size >= 4) break;
-                if (c >= 1 && c <= 100 && !choices.has(c)) {
+                if (c >= 1 && c <= maxR && !choices.has(c)) {
                     choices.add(c);
                 }
             }
 
             while (choices.size < 4) {
-                const rand = randomInt(1, 100);
+                const rand = isExactTen ? randomInt(1, Math.floor(maxR/10)) * 10 : randomInt(1, maxR);
                 if (!choices.has(rand)) choices.add(rand);
             }
 
             const finalOptions = Array.from(choices).sort(() => Math.random() - 0.5);
-            const btnPalette = ['#FF5964', '#35A7FF', '#FFE74C', '#6BF178'];
-            const textPalette = ['#FFFFFF', '#FFFFFF', '#2B2D42', '#2B2D42'];
-
+            const optionLetters = ['A', 'B', 'C', 'D'];
             const grid = document.getElementById('answers-grid');
             grid.innerHTML = '';
 
             finalOptions.forEach((num, idx) => {
                 const word = capitalizeWords(numberToEnglishWords(num));
                 const btn = document.createElement('button');
-                btn.className = 'chunky-btn py-2.5 px-3 flex flex-col items-center justify-center text-center group';
-                btn.style.backgroundColor = btnPalette[idx % btnPalette.length];
-                btn.style.color = textPalette[idx % textPalette.length];
+                btn.className = 'answer-option-btn py-2 px-3 flex flex-col items-center justify-center text-center relative group';
 
                 btn.innerHTML = `
-                    <span class="text-2xl sm:text-3xl md:text-4xl font-bold leading-none tracking-tight drop-shadow-sm">${num}</span>
-                    <span class="text-xs sm:text-sm md:text-base font-bold mt-1 px-2.5 py-0.5 rounded-full bg-white/90 text-[#2B2D42] border-2 border-[#2B2D42]">
+                    <span class="absolute top-2 left-2.5 w-6 h-6 rounded-full bg-[#FFF6E5] border-2 border-[#2B2D42] text-xs font-bold flex items-center justify-center text-[#2B2D42]">
+                        ${optionLetters[idx]}
+                    </span>
+                    <span class="text-2xl sm:text-3xl md:text-4xl font-bold leading-none tracking-tight text-[#2B2D42]">${num}</span>
+                    <span class="text-xs sm:text-sm font-bold mt-1 px-3 py-0.5 rounded-full bg-[#FFF6E5] text-[#2B2D42] border-2 border-[#2B2D42]">
                         ${word}
                     </span>
                 `;
@@ -1105,7 +1476,6 @@
 
         function checkUserAnswer(selectedNum, btnElement) {
             if (isTransitioning) return;
-
             const engWord = numberToEnglishWords(selectedNum);
 
             if (selectedNum === currentQuestion.correctAnswer) {
@@ -1114,29 +1484,29 @@
                 streak += 1;
                 updateScoreUI();
 
+                if (gameMode === 'memory') setCurtainsClosed(false);
+
                 playSfx('win');
+                btnElement.style.backgroundColor = '#6BF178';
                 btnElement.classList.add('animate-squish');
+                speakEnglish(`${engWord}!`, 1.2, 1.05);
 
-                // Speak the celebratory number in Endless Numbers style!
-                speakEnglish(`${engWord}! Awesome!`, 1.2, 1.0);
-
-                // Trigger 3D confetti & monster celebration jump
                 spawn3DConfetti();
                 boingAllMonsters(0.32);
-
                 showFeedbackOverlay(selectedNum, capitalizeWords(engWord));
 
+                const delayMs = gameMode === 'timer' ? 1100 : 1750;
                 setTimeout(() => {
                     hideFeedbackOverlay();
                     nextRound();
-                }, 2000);
+                }, delayMs);
             } else {
-                // Wrong choice feedback
                 streak = 0;
                 updateScoreUI();
                 playSfx('oops');
                 btnElement.classList.add('animate-shake');
-                btnElement.style.opacity = '0.55';
+                btnElement.style.backgroundColor = '#FFD6D9';
+                btnElement.style.opacity = '0.6';
                 speakEnglish(`${engWord}? Try again!`, 1.05, 1.0);
 
                 setTimeout(() => {
@@ -1145,18 +1515,187 @@
             }
         }
 
+        function startTimerMode() {
+            stopTimerMode();
+            timeLeft = 60;
+            const badge = document.getElementById('timer-badge');
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+            document.getElementById('timer-val').textContent = `${timeLeft}s`;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer-val').textContent = `${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    stopTimerMode();
+                    playSfx('win');
+                    speakEnglish(`Time is up! Score ${score}!`, 1.15, 1.0);
+                    showFeedbackOverlay(score, "TIME'S UP!");
+                    setTimeout(() => {
+                        hideFeedbackOverlay();
+                        startTimerMode();
+                        nextRound();
+                    }, 2800);
+                }
+            }, 1000);
+        }
+
+        function stopTimerMode() {
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            const badge = document.getElementById('timer-badge');
+            badge.classList.add('hidden');
+            badge.classList.remove('flex');
+        }
+
+        function setGameMode(mode) {
+            gameMode = mode;
+            clearMemoryTimers();
+            stopTimerMode();
+            setCurtainsClosed(false);
+
+            const modeObj = GAME_MODES.find(m => m.id === mode);
+            if (modeObj) {
+                document.getElementById('active-mode-badge').textContent = `${modeObj.icon} ${modeObj.title}`;
+            }
+
+            const closeupControls = document.getElementById('closeup-controls');
+            if (mode === 'closeup') {
+                closeupControls.classList.remove('hidden');
+            } else {
+                closeupControls.classList.add('hidden');
+                isZoomedClose = false;
+            }
+
+            if (mode === 'timer') {
+                score = 0;
+                streak = 0;
+                updateScoreUI();
+                startTimerMode();
+            }
+
+            playSfx('pop');
+            nextRound();
+        }
+
+        function setupPointerControls(domElement) {
+            domElement.addEventListener('pointerdown', e => {
+                isDragging = true;
+                dragMoved = false;
+                prevMouse.x = e.clientX;
+                prevMouse.y = e.clientY;
+            });
+
+            window.addEventListener('pointermove', e => {
+                if (!isDragging) return;
+                const dx = e.clientX - prevMouse.x;
+                const dy = e.clientY - prevMouse.y;
+                if (Math.abs(dx) > 4 || Math.abs(dy) > 4) dragMoved = true;
+                targetRotationY += dx * 0.007;
+                targetRotationX = Math.max(-0.25, Math.min(0.65, targetRotationX + dy * 0.005));
+                prevMouse.x = e.clientX;
+                prevMouse.y = e.clientY;
+            });
+
+            window.addEventListener('pointerup', e => {
+                if (isDragging && !dragMoved) handleCanvasTap(e);
+                isDragging = false;
+            });
+
+            domElement.addEventListener('wheel', e => {
+                e.preventDefault();
+                targetCameraZ = Math.max(7.5, Math.min(26, targetCameraZ + e.deltaY * 0.012));
+                targetCameraY = Math.max(2.6, Math.min(10, targetCameraZ * 0.36));
+            }, { passive: false });
+        }
+
+        function toggleCloseUpCamera() {
+            isZoomedClose = !isZoomedClose;
+            if (isZoomedClose) {
+                targetCameraZ = 10.5;
+                targetCameraY = 3.5;
+                targetRotationX = 0.04;
+            } else {
+                targetCameraZ = 21;
+                targetCameraY = 8.0;
+                targetRotationX = 0.14;
+            }
+            playSfx('pop');
+        }
+
+        function resetCameraView() {
+            targetRotationY = 0;
+            targetRotationX = isZoomedClose ? 0.04 : 0.14;
+            targetCameraZ = isZoomedClose ? 10.5 : 21;
+            targetCameraY = isZoomedClose ? 3.5 : 8.0;
+        }
+
+        function handleCanvasTap(e) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(interactiveMeshes, false);
+
+            if (intersects.length > 0) {
+                const hitMesh = intersects[0].object;
+                const beanGroup = hitMesh.userData.parentBean;
+                if (beanGroup && beanGroup.userData) {
+                    beanGroup.userData.jumpVel = 0.24;
+                    playSfx('boing');
+
+                    if (beanGroup.userData.isMathBlock) {
+                        speakEnglish(String(beanGroup.userData.countValue), 1.15, 1.0);
+                    } else {
+                        const addVal = beanGroup.userData.countValue || 1;
+                        tappedCounter += addVal;
+                        if (tappedCounter > 100) tappedCounter = addVal;
+
+                        const engWord = capitalizeWords(numberToEnglishWords(tappedCounter));
+                        const pill = document.getElementById('interactive-counter');
+                        document.getElementById('tapped-count-text').textContent = `${tappedCounter} - ${engWord}!`;
+                        pill.classList.remove('hidden');
+                        speakEnglish(engWord, 1.2, 1.05);
+                    }
+                }
+            }
+        }
+
+        function boingAllMonsters(strength = 0.2) {
+            playSfx('boing');
+            animatedBeans.forEach((b, idx) => {
+                setTimeout(() => {
+                    if (b && b.userData) b.userData.jumpVel = strength + Math.random() * 0.08;
+                }, idx * 18);
+            });
+        }
+
+        function spawn3DConfetti() {
+            const colors = [0xFF5964, 0x35A7FF, 0xFFE74C, 0x6BF178, 0x9B5DE5];
+            const geo = new THREE.BoxGeometry(0.32, 0.32, 0.32);
+            for (let i = 0; i < 40; i++) {
+                const mat = new THREE.MeshBasicMaterial({ color: colors[i % colors.length] });
+                const p = new THREE.Mesh(geo, mat);
+                p.position.set((Math.random() - 0.5) * 6, 2 + Math.random() * 2, (Math.random() - 0.5) * 4);
+                p.userData = {
+                    vel: new THREE.Vector3((Math.random() - 0.5) * 0.32, 0.15 + Math.random() * 0.25, (Math.random() - 0.5) * 0.32),
+                    rotVel: new THREE.Vector3(Math.random() * 0.2, Math.random() * 0.2, Math.random() * 0.2),
+                    life: 70
+                };
+                scene.add(p);
+                confettiParticles.push(p);
+            }
+        }
+
         function updateScoreUI() {
             document.getElementById('score-val').textContent = score;
             document.getElementById('streak-val').textContent = streak;
         }
 
-        function showFeedbackOverlay(num, word) {
+        function showFeedbackOverlay(numVal, wordStr) {
             const overlay = document.getElementById('feedback-overlay');
             const box = document.getElementById('feedback-box');
-            const emojis = ['🎉', '🌟', '👾', '🥳', '🚀'];
-            document.getElementById('feedback-emoji').textContent = emojis[randomInt(0, emojis.length - 1)];
-            document.getElementById('feedback-word').textContent = `${num} = ${word.toUpperCase()}`;
-
+            document.getElementById('feedback-word').textContent = `${numVal} = ${wordStr.toUpperCase()}`;
             overlay.classList.remove('opacity-0');
             overlay.classList.add('opacity-100');
             box.classList.remove('scale-75');
@@ -1172,127 +1711,6 @@
             box.classList.add('scale-75');
         }
 
-        function setGameMode(mode) {
-            gameMode = mode;
-            ['analyze', 'math', 'mix'].forEach(m => {
-                const btn = document.getElementById(`mode-${m}`);
-                if (m === mode) {
-                    btn.classList.add('mode-active');
-                } else {
-                    btn.classList.remove('mode-active');
-                }
-            });
-            playSfx('pop');
-            nextRound();
-        }
-
-        /**************************************************************
-         * 7. 3D INTERACTIVITY, CONFETTI & ANIMATION LOOP
-         **************************************************************/
-        function setupPointerControls(domElement) {
-            domElement.addEventListener('pointerdown', e => {
-                isDragging = true;
-                dragMoved = false;
-                prevMouse.x = e.clientX;
-                prevMouse.y = e.clientY;
-            });
-
-            window.addEventListener('pointermove', e => {
-                if (!isDragging) return;
-                const dx = e.clientX - prevMouse.x;
-                const dy = e.clientY - prevMouse.y;
-                if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
-                    dragMoved = true;
-                }
-                targetRotationY += dx * 0.007;
-                targetRotationX = Math.max(-0.25, Math.min(0.65, targetRotationX + dy * 0.005));
-                prevMouse.x = e.clientX;
-                prevMouse.y = e.clientY;
-            });
-
-            window.addEventListener('pointerup', e => {
-                if (isDragging && !dragMoved) {
-                    handleCanvasTap(e);
-                }
-                isDragging = false;
-            });
-        }
-
-        function handleCanvasTap(e) {
-            const rect = renderer.domElement.getBoundingClientRect();
-            mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
-            raycaster.setFromCamera(mouse, camera);
-            const hits = raycaster.intersectObjects(interactiveMeshes, false);
-
-            if (hits.length > 0) {
-                const beanGroup = hits[0].object.userData.parentBean;
-                if (beanGroup) {
-                    // Make monster jump & squish!
-                    beanGroup.userData.jumpVel = 0.24;
-                    playSfx('boing');
-
-                    if (beanGroup.userData.isMathBlock) {
-                        speakEnglish(String(beanGroup.userData.countValue), 1.2, 1.0);
-                    } else {
-                        // Increment interactive counting helper!
-                        const addAmount = beanGroup.userData.countValue || 1;
-                        tappedCounter += addAmount;
-                        if (tappedCounter > 100) tappedCounter = addAmount;
-
-                        const engWord = capitalizeWords(numberToEnglishWords(tappedCounter));
-                        const pill = document.getElementById('interactive-counter');
-                        const pillText = document.getElementById('tapped-count-text');
-                        pill.classList.remove('hidden');
-                        pillText.textContent = `${tappedCounter} - ${engWord}!`;
-
-                        speakEnglish(engWord, 1.25, 1.05);
-                    }
-                }
-            }
-        }
-
-        function boingAllMonsters(strength = 0.20) {
-            playSfx('boing');
-            animatedBeans.forEach((b, i) => {
-                b.userData.jumpVel = strength + (i % 5) * 0.02;
-            });
-        }
-
-        function resetCameraView() {
-            targetRotationY = 0;
-            targetRotationX = 0.14;
-        }
-
-        function spawn3DConfetti() {
-            const colors = [0xFF5964, 0x35A7FF, 0xFFE74C, 0x6BF178, 0x9B5DE5];
-            const geo = new THREE.BoxGeometry(0.35, 0.35, 0.12);
-
-            for (let i = 0; i < 45; i++) {
-                const mat = new THREE.MeshBasicMaterial({ color: colors[i % colors.length] });
-                const p = new THREE.Mesh(geo, mat);
-                p.position.set(
-                    (Math.random() - 0.5) * 6,
-                    2 + Math.random() * 2,
-                    (Math.random() - 0.5) * 4
-                );
-                p.userData.vel = new THREE.Vector3(
-                    (Math.random() - 0.5) * 0.35,
-                    0.18 + Math.random() * 0.25,
-                    (Math.random() - 0.5) * 0.35
-                );
-                p.userData.rotVel = new THREE.Vector3(
-                    Math.random() * 0.2,
-                    Math.random() * 0.2,
-                    Math.random() * 0.2
-                );
-                p.userData.life = 70;
-                scene.add(p);
-                confettiParticles.push(p);
-            }
-        }
-
         function onWindowResize() {
             const container = document.getElementById('canvas-wrapper');
             if (!container || !renderer || !camera) return;
@@ -1305,26 +1723,67 @@
 
         function animateLoop() {
             requestAnimationFrame(animateLoop);
-
             const time = performance.now() * 0.003;
 
-            // Smooth stage rotation
+            if (camera) {
+                camera.position.z += (targetCameraZ - camera.position.z) * 0.08;
+                camera.position.y += (targetCameraY - camera.position.y) * 0.08;
+                camera.lookAt(0, isZoomedClose ? 0.9 : 0.5, 0);
+            }
+
             if (stageGroup) {
                 stageGroup.rotation.y += (targetRotationY - stageGroup.rotation.y) * 0.1;
                 stageGroup.rotation.x += (targetRotationX - stageGroup.rotation.x) * 0.1;
             }
 
-            // Animate each monster (idle breathing + jump & squish physics)
             for (let i = 0; i < animatedBeans.length; i++) {
                 const bean = animatedBeans[i];
                 const ud = bean.userData;
 
                 if (ud.jumpVel !== 0 || ud.jumpOffset > 0) {
                     ud.jumpOffset += ud.jumpVel;
-                    ud.jumpVel -= 0.015; // Gravity
+                    ud.jumpVel -= 0.015;
                     if (ud.jumpOffset <= 0) {
                         ud.jumpOffset = 0;
                         ud.jumpVel = 0;
+                    }
+                }
+
+                let waddleTilt = 0;
+                if (ud.isWalking) {
+                    const stepCycle = time * 4.5 + ud.phase;
+                    waddleTilt = Math.sin(stepCycle) * 0.14;
+
+                    if (ud.leftFoot && ud.rightFoot) {
+                        ud.leftFoot.position.y = -0.25 + Math.max(0, Math.sin(stepCycle) * 0.18);
+                        ud.rightFoot.position.y = -0.25 + Math.max(0, -Math.sin(stepCycle) * 0.18);
+                    }
+
+                    if (gameMode !== 'closeup') {
+                        bean.position.x += Math.sin(ud.walkAngle) * ud.walkSpeed;
+                        bean.position.z += Math.cos(ud.walkAngle) * ud.walkSpeed;
+
+                        const distFromCenter = Math.hypot(bean.position.x, bean.position.z);
+                        if (distFromCenter > 8.6) {
+                            ud.walkAngle = Math.atan2(-bean.position.x, -bean.position.z) + (Math.random() - 0.5) * 0.8;
+                        } else if (Math.random() < 0.012) {
+                            ud.walkAngle += (Math.random() - 0.5) * 1.2;
+                        }
+
+                        for (let j = i + 1; j < animatedBeans.length; j++) {
+                            const other = animatedBeans[j];
+                            const dx = bean.position.x - other.position.x;
+                            const dz = bean.position.z - other.position.z;
+                            const d = Math.hypot(dx, dz);
+                            const minDist = ((bean.userData.baseScale || 1) + (other.userData.baseScale || 1)) * 0.72;
+                            if (d > 0 && d < minDist) {
+                                const push = (minDist - d) * 0.045;
+                                bean.position.x += (dx / d) * push;
+                                bean.position.z += (dz / d) * push;
+                                other.position.x -= (dx / d) * push;
+                                other.position.z -= (dz / d) * push;
+                            }
+                        }
                     }
                 }
 
@@ -1332,7 +1791,8 @@
                 const breathe = Math.sin(time * 2.2 + ud.phase) * 0.04;
                 const stretch = ud.jumpOffset * 0.18;
 
-                bean.position.y = (ud.baseY || 0) + ud.jumpOffset;
+                bean.position.y = (ud.baseY || 0) + ud.jumpOffset + (ud.isWalking ? Math.abs(Math.sin(time * 4.5 + ud.phase)) * 0.12 : 0);
+                bean.rotation.z = waddleTilt;
                 bean.scale.set(
                     baseS * (1 - breathe - stretch * 0.4),
                     baseS * (1 + breathe + stretch),
@@ -1340,7 +1800,6 @@
                 );
             }
 
-            // Update 3D confetti particles
             for (let i = confettiParticles.length - 1; i >= 0; i--) {
                 const p = confettiParticles[i];
                 p.position.add(p.userData.vel);
@@ -1348,7 +1807,6 @@
                 p.rotation.x += p.userData.rotVel.x;
                 p.rotation.y += p.userData.rotVel.y;
                 p.userData.life--;
-
                 if (p.userData.life <= 0) {
                     scene.remove(p);
                     confettiParticles.splice(i, 1);
@@ -1358,8 +1816,8 @@
             renderer.render(scene, camera);
         }
 
-        // Start game on window load
         window.onload = function () {
+            renderMainMenuCards();
             initThreeScene();
             nextRound();
             animateLoop();
